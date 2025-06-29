@@ -1,125 +1,232 @@
 
-import { useState } from "react";
-import { useParams } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
-import { CartDrawer } from "@/components/CartDrawer";
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { CartDrawer } from '@/components/CartDrawer';
+import { 
+  ShoppingCart, 
+  Plus, 
+  Minus, 
+  Search, 
+  MapPin, 
+  Clock, 
+  Phone,
+  Star,
+  Users
+} from 'lucide-react';
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+}
+
+interface CartItem extends Product {
+  quantity: number;
+}
 
 const Menu = () => {
-  const { tableId } = useParams();
-  const [cart, setCart] = useState<any[]>([]);
-  const [showCart, setShowCart] = useState(false);
+  const { restaurantSlug, tableId } = useParams();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [cartOpen, setCartOpen] = useState(false);
 
-  const products = [
+  // Mock data - em produção viria da API
+  const restaurant = {
+    name: 'Burger House',
+    description: 'Os melhores hambúrgueres da cidade',
+    address: 'Rua das Flores, 123 - Centro',
+    phone: '(11) 99999-9999',
+    rating: 4.8,
+    deliveryTime: '30-45 min',
+    image: 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=800&h=400&fit=crop'
+  };
+
+  const mockProducts: Product[] = [
     {
       id: 1,
-      name: "Hambúrguer Clássico",
-      category: "Lanches",
+      name: 'Hambúrguer Clássico',
+      description: 'Pão brioche, hambúrguer 180g, queijo, alface, tomate, molho especial',
       price: 24.90,
-      image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=300&fit=crop",
-      description: "Pão brioche, hambúrguer 180g, queijo, alface, tomate",
+      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=300&h=200&fit=crop',
+      category: 'Lanches'
     },
     {
       id: 2,
-      name: "Batata Frita",
-      category: "Acompanhamentos",
-      price: 12.90,
-      image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=300&fit=crop",
-      description: "Porção individual de batata frita crocante",
+      name: 'Hambúrguer Bacon',
+      description: 'Pão brioche, hambúrguer 180g, queijo, bacon crocante, alface, tomate',
+      price: 28.90,
+      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=200&fit=crop',
+      category: 'Lanches'
     },
     {
       id: 3,
-      name: "Coca-Cola Lata",
-      category: "Bebidas",
-      price: 6.90,
-      image: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=300&fit=crop",
-      description: "Coca-Cola lata 350ml gelada",
+      name: 'Batata Frita',
+      description: 'Porção de batata frita crocante temperada',
+      price: 12.90,
+      image: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300&h=200&fit=crop',
+      category: 'Acompanhamentos'
     },
     {
       id: 4,
-      name: "Pizza Margherita",
-      category: "Pizzas",
-      price: 38.90,
-      image: "https://images.unsplash.com/photo-1466721591366-2d5fba72006d?w=400&h=300&fit=crop",
-      description: "Molho de tomate, mussarela, manjericão fresco",
+      name: 'Coca-Cola',
+      description: 'Refrigerante Coca-Cola 350ml gelado',
+      price: 6.90,
+      image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=300&h=200&fit=crop',
+      category: 'Bebidas'
     },
+    {
+      id: 5,
+      name: 'Pizza Margherita',
+      description: 'Molho de tomate, mussarela, manjericão fresco, azeite',
+      price: 38.90,
+      image: 'https://images.unsplash.com/photo-1566843972142-a7fcb70de6a2?w=300&h=200&fit=crop',
+      category: 'Pizzas'
+    }
   ];
 
-  const categories = ["Todos", "Lanches", "Acompanhamentos", "Bebidas", "Pizzas"];
-  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const categories = ['Todos', 'Lanches', 'Acompanhamentos', 'Bebidas', 'Pizzas'];
 
-  const filteredProducts = selectedCategory === "Todos" 
-    ? products 
-    : products.filter(product => product.category === selectedCategory);
+  useEffect(() => {
+    // Simular carregamento dos produtos
+    setProducts(mockProducts);
+  }, []);
 
-  const addToCart = (product: any) => {
-    const existingItem = cart.find(item => item.id === product.id);
-    if (existingItem) {
-      setCart(cart.map(item => 
-        item.id === product.id 
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ));
-    } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
-    }
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = selectedCategory === 'Todos' || product.category === selectedCategory;
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const addToCart = (product: Product) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.id === product.id);
+      if (existingItem) {
+        return prevCart.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prevCart, { ...product, quantity: 1 }];
+    });
   };
 
-  const getCartTotal = () => {
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const removeFromCart = (productId: number) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(item => item.id === productId);
+      if (existingItem && existingItem.quantity > 1) {
+        return prevCart.map(item =>
+          item.id === productId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        );
+      }
+      return prevCart.filter(item => item.id !== productId);
+    });
   };
 
-  const getCartItemsCount = () => {
+  const getItemQuantity = (productId: number) => {
+    const item = cart.find(item => item.id === productId);
+    return item ? item.quantity : 0;
+  };
+
+  const getTotalItems = () => {
     return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const getTotalPrice = () => {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold">Restaurante Demo</h1>
-              <p className="text-sm text-gray-600">Mesa {tableId}</p>
-            </div>
-            <Badge className="bg-blue-100 text-blue-800">
-              Cardápio Digital
-            </Badge>
+      {/* Header do Restaurante */}
+      <div className="bg-white shadow-sm">
+        <div className="relative h-48 overflow-hidden">
+          <img 
+            src={restaurant.image} 
+            alt={restaurant.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute bottom-4 left-4 text-white">
+            <h1 className="text-2xl font-bold">{restaurant.name}</h1>
+            <p className="text-sm opacity-90">{restaurant.description}</p>
           </div>
         </div>
-      </header>
+        
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span>{restaurant.rating}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                <span>{restaurant.deliveryTime}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Phone className="h-4 w-4" />
+                <span>{restaurant.phone}</span>
+              </div>
+            </div>
+            
+            {tableId && (
+              <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                <Users className="h-4 w-4" />
+                <span>Mesa {tableId}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="container mx-auto px-4 py-6">
-        {/* Welcome Message */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-lg mb-6">
-          <h2 className="text-2xl font-bold mb-2">Bem-vindo!</h2>
-          <p>Faça seu pedido diretamente pelo cardápio digital. Seus itens serão enviados diretamente para a cozinha.</p>
+        {/* Busca e Filtros */}
+        <div className="space-y-4 mb-6">
+          <div className="relative">
+            <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
+            <Input
+              placeholder="Buscar produtos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {categories.map((category) => (
+              <Button
+                key={category}
+                variant={selectedCategory === category ? 'default' : 'outline'}
+                size="sm"
+                className="whitespace-nowrap"
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              className="whitespace-nowrap"
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
-
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-20">
-          {filteredProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="md:flex">
-                <div className="md:w-32 md:h-32 h-48 overflow-hidden">
+        {/* Lista de Produtos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
+          {filteredProducts.map((product) => {
+            const quantity = getItemQuantity(product.id);
+            
+            return (
+              <Card key={product.id} className="overflow-hidden">
+                <div className="relative h-48">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -127,13 +234,11 @@ const Menu = () => {
                   />
                 </div>
                 
-                <CardContent className="flex-1 p-4">
+                <CardContent className="p-4">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between">
-                      <h3 className="font-semibold text-lg">{product.name}</h3>
-                      <Badge variant="outline" className="text-xs">
-                        {product.category}
-                      </Badge>
+                      <h3 className="font-semibold">{product.name}</h3>
+                      <Badge variant="outline">{product.category}</Badge>
                     </div>
                     
                     <p className="text-sm text-gray-600 line-clamp-2">
@@ -141,46 +246,78 @@ const Menu = () => {
                     </p>
                     
                     <div className="flex items-center justify-between pt-2">
-                      <span className="text-xl font-bold text-green-600">
+                      <span className="text-lg font-bold text-green-600">
                         R$ {product.price.toFixed(2)}
                       </span>
-                      <Button
-                        onClick={() => addToCart(product)}
-                        size="sm"
-                        className="flex items-center gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Adicionar
-                      </Button>
+                      
+                      <div className="flex items-center gap-2">
+                        {quantity > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeFromCart(product.id)}
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="font-medium">{quantity}</span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addToCart(product)}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => addToCart(product)}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Adicionar
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
+
+        {/* Botão do Carrinho */}
+        {cart.length > 0 && (
+          <div className="fixed bottom-4 left-4 right-4 z-50">
+            <Button
+              onClick={() => setCartOpen(true)}
+              className="w-full h-14 text-lg shadow-lg"
+            >
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              Ver Carrinho ({getTotalItems()}) - R$ {getTotalPrice().toFixed(2)}
+            </Button>
+          </div>
+        )}
+
+        {/* Drawer do Carrinho */}
+        <CartDrawer
+          isOpen={cartOpen}
+          onClose={() => setCartOpen(false)}
+          cart={cart}
+          onUpdateQuantity={(productId, quantity) => {
+            if (quantity === 0) {
+              setCart(cart.filter(item => item.id !== productId));
+            } else {
+              setCart(cart.map(item =>
+                item.id === productId ? { ...item, quantity } : item
+              ));
+            }
+          }}
+          tableNumber={tableId ? parseInt(tableId) : undefined}
+          restaurant={restaurant}
+        />
       </div>
-
-      {/* Floating Cart Button */}
-      {cart.length > 0 && (
-        <div className="fixed bottom-4 left-4 right-4 z-50">
-          <Button
-            onClick={() => setShowCart(true)}
-            className="w-full h-14 text-lg font-semibold bg-green-600 hover:bg-green-700"
-          >
-            <ShoppingCart className="h-5 w-5 mr-2" />
-            Ver Carrinho ({getCartItemsCount()}) - R$ {getCartTotal().toFixed(2)}
-          </Button>
-        </div>
-      )}
-
-      <CartDrawer
-        isOpen={showCart}
-        onClose={() => setShowCart(false)}
-        cart={cart}
-        setCart={setCart}
-        tableId={tableId}
-      />
     </div>
   );
 };

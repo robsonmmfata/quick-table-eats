@@ -7,77 +7,100 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
 import { 
   Settings, 
-  Upload, 
+  Store, 
   Clock, 
   MapPin, 
   Phone, 
   Mail, 
-  Link as LinkIcon,
-  Palette,
-  Bell,
+  Globe,
+  Upload,
+  Save,
+  QrCode,
+  Smartphone,
   CreditCard
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 export const RestaurantSettings = () => {
-  const { toast } = useToast();
   const [settings, setSettings] = useState({
     // Informações Básicas
-    name: 'Restaurante Demo',
-    description: 'O melhor da culinária brasileira',
+    name: 'Meu Restaurante',
+    description: 'O melhor restaurante da cidade',
     phone: '(11) 99999-9999',
-    email: 'contato@restaurante.com',
-    address: 'Rua das Flores, 123 - Centro',
-    customUrl: 'restaurante-demo',
+    email: 'contato@meurestaurante.com',
+    address: 'Rua das Flores, 123 - Centro, São Paulo - SP',
+    website: 'https://meurestaurante.com',
+    logo: '',
     
-    // Horários
-    openingHours: [
-      { day: 'Segunda', open: '18:00', close: '23:00', isOpen: true },
-      { day: 'Terça', open: '18:00', close: '23:00', isOpen: true },
-      { day: 'Quarta', open: '18:00', close: '23:00', isOpen: true },
-      { day: 'Quinta', open: '18:00', close: '23:00', isOpen: true },
-      { day: 'Sexta', open: '18:00', close: '00:00', isOpen: true },
-      { day: 'Sábado', open: '18:00', close: '00:00', isOpen: true },
-      { day: 'Domingo', open: '18:00', close: '23:00', isOpen: false },
-    ],
+    // Horário de Funcionamento
+    schedule: {
+      monday: { open: '08:00', close: '22:00', closed: false },
+      tuesday: { open: '08:00', close: '22:00', closed: false },
+      wednesday: { open: '08:00', close: '22:00', closed: false },
+      thursday: { open: '08:00', close: '22:00', closed: false },
+      friday: { open: '08:00', close: '23:00', closed: false },
+      saturday: { open: '10:00', close: '23:00', closed: false },
+      sunday: { open: '10:00', close: '20:00', closed: false }
+    },
     
-    // Configurações
-    acceptDelivery: true,
+    // Configurações de Pedidos
+    acceptOnlineOrders: true,
+    acceptTableOrders: true,
+    minOrderValue: 15.00,
     deliveryFee: 5.00,
-    minOrderValue: 20.00,
-    pixKey: '',
-    whatsappNumber: '',
-    autoAcceptOrders: false,
+    deliveryTime: 30,
     
-    // Notificações
-    emailNotifications: true,
-    whatsappNotifications: false,
+    // Configurações de Pagamento
+    acceptCash: true,
+    acceptCard: true,
+    acceptPix: true,
+    pixKey: 'pix@meurestaurante.com',
     
-    // Personalização
-    primaryColor: '#3b82f6',
-    logo: ''
+    // WhatsApp
+    whatsappNumber: '5511999999999',
+    whatsappEnabled: true,
+    
+    // Link Personalizado
+    customSlug: 'meu-restaurante'
   });
 
+  const { toast } = useToast();
+
   const handleSave = () => {
+    // Aqui você implementaria a lógica para salvar as configurações
+    console.log('Salvando configurações:', settings);
+    
     toast({
-      title: 'Configurações salvas!',
-      description: 'Suas configurações foram atualizadas com sucesso.',
+      title: "Configurações salvas",
+      description: "As configurações do restaurante foram atualizadas com sucesso."
     });
   };
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const fakeUrl = `https://images.unsplash.com/photo-${Date.now()}?w=200&h=200&fit=crop`;
-      setSettings({ ...settings, logo: fakeUrl });
-      toast({
-        title: 'Logo carregada!',
-        description: 'A logo do seu restaurante foi atualizada.',
-      });
-    }
+  const handleScheduleChange = (day: string, field: string, value: string | boolean) => {
+    setSettings(prev => ({
+      ...prev,
+      schedule: {
+        ...prev.schedule,
+        [day]: {
+          ...prev.schedule[day as keyof typeof prev.schedule],
+          [field]: value
+        }
+      }
+    }));
   };
+
+  const days = [
+    { key: 'monday', label: 'Segunda-feira' },
+    { key: 'tuesday', label: 'Terça-feira' },
+    { key: 'wednesday', label: 'Quarta-feira' },
+    { key: 'thursday', label: 'Quinta-feira' },
+    { key: 'friday', label: 'Sexta-feira' },
+    { key: 'saturday', label: 'Sábado' },
+    { key: 'sunday', label: 'Domingo' }
+  ];
 
   return (
     <div className="space-y-6">
@@ -91,293 +114,301 @@ export const RestaurantSettings = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
+              <Store className="h-5 w-5" />
               Informações Básicas
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Logo Upload */}
             <div className="space-y-2">
-              <Label>Logo do Restaurante</Label>
-              <div className="flex items-center gap-4">
-                {settings.logo ? (
-                  <img
-                    src={settings.logo}
-                    alt="Logo"
-                    className="w-16 h-16 object-cover rounded-lg border"
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <Upload className="h-6 w-6 text-gray-400" />
-                  </div>
-                )}
-                <div>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="hidden"
-                    id="logo-upload"
-                  />
-                  <Label htmlFor="logo-upload" className="cursor-pointer">
-                    <Button variant="outline" size="sm" type="button">
-                      Alterar Logo
-                    </Button>
-                  </Label>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome do Restaurante</Label>
+              <Label>Nome do Restaurante</Label>
               <Input
-                id="name"
                 value={settings.name}
                 onChange={(e) => setSettings({ ...settings, name: e.target.value })}
               />
             </div>
-
+            
             <div className="space-y-2">
-              <Label htmlFor="description">Descrição</Label>
+              <Label>Descrição</Label>
               <Textarea
-                id="description"
                 value={settings.description}
                 onChange={(e) => setSettings({ ...settings, description: e.target.value })}
                 rows={3}
               />
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <div className="flex">
-                  <Phone className="h-4 w-4 text-gray-400 mt-3 ml-3 absolute z-10" />
-                  <Input
-                    id="phone"
-                    value={settings.phone}
-                    onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="flex">
-                  <Mail className="h-4 w-4 text-gray-400 mt-3 ml-3 absolute z-10" />
-                  <Input
-                    id="email"
-                    value={settings.email}
-                    onChange={(e) => setSettings({ ...settings, email: e.target.value })}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
-
+            
             <div className="space-y-2">
-              <Label htmlFor="address">Endereço</Label>
-              <div className="flex">
-                <MapPin className="h-4 w-4 text-gray-400 mt-3 ml-3 absolute z-10" />
+              <Label>Telefone</Label>
+              <Input
+                value={settings.phone}
+                onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={settings.email}
+                onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Endereço</Label>
+              <Textarea
+                value={settings.address}
+                onChange={(e) => setSettings({ ...settings, address: e.target.value })}
+                rows={2}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Website</Label>
+              <Input
+                value={settings.website}
+                onChange={(e) => setSettings({ ...settings, website: e.target.value })}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Link Personalizado */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              Link Personalizado
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Slug Personalizado</Label>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">cardapio.app/</span>
                 <Input
-                  id="address"
-                  value={settings.address}
-                  onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-                  className="pl-10"
+                  value={settings.customSlug}
+                  onChange={(e) => setSettings({ ...settings, customSlug: e.target.value })}
+                  placeholder="meu-restaurante"
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="customUrl">Link Personalizado</Label>
-              <div className="flex">
-                <LinkIcon className="h-4 w-4 text-gray-400 mt-3 ml-3 absolute z-10" />
-                <Input
-                  id="customUrl"
-                  value={settings.customUrl}
-                  onChange={(e) => setSettings({ ...settings, customUrl: e.target.value })}
-                  className="pl-10"
-                />
-              </div>
-              <p className="text-xs text-gray-500">
-                Seu cardápio ficará disponível em: <strong>plataforma.com/{settings.customUrl}</strong>
+              <p className="text-sm text-gray-500">
+                Seu cardápio estará disponível em: cardapio.app/{settings.customSlug}
               </p>
+            </div>
+            
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <QrCode className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-blue-800">QR Code do Cardápio</span>
+              </div>
+              <p className="text-sm text-blue-700 mb-3">
+                Compartilhe o QR Code para que os clientes acessem seu cardápio facilmente
+              </p>
+              <Button variant="outline" size="sm">
+                Gerar QR Code
+              </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Horário de Funcionamento */}
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
               Horário de Funcionamento
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {settings.openingHours.map((hour, index) => (
-              <div key={hour.day} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Switch
-                    checked={hour.isOpen}
-                    onCheckedChange={(checked) => {
-                      const newHours = [...settings.openingHours];
-                      newHours[index].isOpen = checked;
-                      setSettings({ ...settings, openingHours: newHours });
-                    }}
-                  />
-                  <span className="font-medium w-20">{hour.day}</span>
-                </div>
-                {hour.isOpen ? (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="time"
-                      value={hour.open}
-                      onChange={(e) => {
-                        const newHours = [...settings.openingHours];
-                        newHours[index].open = e.target.value;
-                        setSettings({ ...settings, openingHours: newHours });
-                      }}
-                      className="w-20 text-sm"
-                    />
-                    <span className="text-gray-500">às</span>
-                    <Input
-                      type="time"
-                      value={hour.close}
-                      onChange={(e) => {
-                        const newHours = [...settings.openingHours];
-                        newHours[index].close = e.target.value;
-                        setSettings({ ...settings, openingHours: newHours });
-                      }}
-                      className="w-20 text-sm"
-                    />
+          <CardContent>
+            <div className="space-y-4">
+              {days.map((day) => {
+                const daySchedule = settings.schedule[day.key as keyof typeof settings.schedule];
+                return (
+                  <div key={day.key} className="flex items-center gap-4">
+                    <div className="w-32">
+                      <span className="text-sm font-medium">{day.label}</span>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={!daySchedule.closed}
+                        onCheckedChange={(checked) => handleScheduleChange(day.key, 'closed', !checked)}
+                      />
+                      <span className="text-sm">Aberto</span>
+                    </div>
+                    
+                    {!daySchedule.closed && (
+                      <>
+                        <Input
+                          type="time"
+                          value={daySchedule.open}
+                          onChange={(e) => handleScheduleChange(day.key, 'open', e.target.value)}
+                          className="w-32"
+                        />
+                        <span className="text-sm">às</span>
+                        <Input
+                          type="time"
+                          value={daySchedule.close}
+                          onChange={(e) => handleScheduleChange(day.key, 'close', e.target.value)}
+                          className="w-32"
+                        />
+                      </>
+                    )}
+                    
+                    {daySchedule.closed && (
+                      <Badge variant="outline" className="text-red-600">
+                        Fechado
+                      </Badge>
+                    )}
                   </div>
-                ) : (
-                  <Badge variant="outline">Fechado</Badge>
-                )}
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
 
-        {/* Delivery e Pagamentos */}
+        {/* Configurações de Pedidos */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Configurações de Pedidos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Aceitar pedidos online</Label>
+              <Switch
+                checked={settings.acceptOnlineOrders}
+                onCheckedChange={(checked) => setSettings({ ...settings, acceptOnlineOrders: checked })}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <Label>Aceitar pedidos por mesa</Label>
+              <Switch
+                checked={settings.acceptTableOrders}
+                onCheckedChange={(checked) => setSettings({ ...settings, acceptTableOrders: checked })}
+              />
+            </div>
+            
+            <Separator />
+            
+            <div className="space-y-2">
+              <Label>Valor mínimo do pedido (R$)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={settings.minOrderValue}
+                onChange={(e) => setSettings({ ...settings, minOrderValue: parseFloat(e.target.value) })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Taxa de entrega (R$)</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={settings.deliveryFee}
+                onChange={(e) => setSettings({ ...settings, deliveryFee: parseFloat(e.target.value) })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Tempo de entrega (minutos)</Label>
+              <Input
+                type="number"
+                value={settings.deliveryTime}
+                onChange={(e) => setSettings({ ...settings, deliveryTime: parseInt(e.target.value) })}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Configurações de Pagamento */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
-              Delivery e Pagamentos
+              Formas de Pagamento
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <div>
-                <Label>Aceitar Delivery</Label>
-                <p className="text-sm text-gray-500">Permitir pedidos para entrega</p>
-              </div>
+              <Label>Dinheiro</Label>
               <Switch
-                checked={settings.acceptDelivery}
-                onCheckedChange={(checked) => setSettings({ ...settings, acceptDelivery: checked })}
+                checked={settings.acceptCash}
+                onCheckedChange={(checked) => setSettings({ ...settings, acceptCash: checked })}
               />
             </div>
-
-            {settings.acceptDelivery && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="deliveryFee">Taxa de Entrega</Label>
-                    <Input
-                      id="deliveryFee"
-                      type="number"
-                      step="0.01"
-                      value={settings.deliveryFee}
-                      onChange={(e) => setSettings({ ...settings, deliveryFee: parseFloat(e.target.value) })}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="minOrderValue">Pedido Mínimo</Label>
-                    <Input
-                      id="minOrderValue"
-                      type="number"
-                      step="0.01"
-                      value={settings.minOrderValue}
-                      onChange={(e) => setSettings({ ...settings, minOrderValue: parseFloat(e.target.value) })}
-                    />
-                  </div>
-                </div>
-              </>
+            
+            <div className="flex items-center justify-between">
+              <Label>Cartão</Label>
+              <Switch
+                checked={settings.acceptCard}
+                onCheckedChange={(checked) => setSettings({ ...settings, acceptCard: checked })}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <Label>PIX</Label>
+              <Switch
+                checked={settings.acceptPix}
+                onCheckedChange={(checked) => setSettings({ ...settings, acceptPix: checked })}
+              />
+            </div>
+            
+            {settings.acceptPix && (
+              <div className="space-y-2">
+                <Label>Chave PIX</Label>
+                <Input
+                  value={settings.pixKey}
+                  onChange={(e) => setSettings({ ...settings, pixKey: e.target.value })}
+                  placeholder="email@exemplo.com ou telefone"
+                />
+              </div>
             )}
-
-            <div className="space-y-2">
-              <Label htmlFor="pixKey">Chave PIX</Label>
-              <Input
-                id="pixKey"
-                placeholder="Sua chave PIX para recebimentos"
-                value={settings.pixKey}
-                onChange={(e) => setSettings({ ...settings, pixKey: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="whatsappNumber">WhatsApp (com DDD)</Label>
-              <Input
-                id="whatsappNumber"
-                placeholder="5511999999999"
-                value={settings.whatsappNumber}
-                onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })}
-              />
-            </div>
           </CardContent>
         </Card>
 
-        {/* Notificações */}
-        <Card>
+        {/* WhatsApp */}
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              Notificações
+              <Smartphone className="h-5 w-5" />
+              Integração WhatsApp
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <div>
-                <Label>Aceitar pedidos automaticamente</Label>
-                <p className="text-sm text-gray-500">Pedidos são aceitos sem confirmação manual</p>
-              </div>
+              <Label>Ativar WhatsApp</Label>
               <Switch
-                checked={settings.autoAcceptOrders}
-                onCheckedChange={(checked) => setSettings({ ...settings, autoAcceptOrders: checked })}
+                checked={settings.whatsappEnabled}
+                onCheckedChange={(checked) => setSettings({ ...settings, whatsappEnabled: checked })}
               />
             </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Notificações por Email</Label>
-                <p className="text-sm text-gray-500">Receber pedidos por email</p>
+            
+            {settings.whatsappEnabled && (
+              <div className="space-y-2">
+                <Label>Número do WhatsApp</Label>
+                <Input
+                  value={settings.whatsappNumber}
+                  onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })}
+                  placeholder="5511999999999 (com código do país)"
+                />
+                <p className="text-sm text-gray-500">
+                  Os pedidos serão enviados para este número via WhatsApp
+                </p>
               </div>
-              <Switch
-                checked={settings.emailNotifications}
-                onCheckedChange={(checked) => setSettings({ ...settings, emailNotifications: checked })}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Notificações no WhatsApp</Label>
-                <p className="text-sm text-gray-500">Receber pedidos no WhatsApp</p>
-              </div>
-              <Switch
-                checked={settings.whatsappNotifications}
-                onCheckedChange={(checked) => setSettings({ ...settings, whatsappNotifications: checked })}
-              />
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Botão Salvar */}
+      {/* Botão de Salvar */}
       <div className="flex justify-end">
-        <Button onClick={handleSave} size="lg" className="px-8">
+        <Button onClick={handleSave} className="flex items-center gap-2">
+          <Save className="h-4 w-4" />
           Salvar Configurações
         </Button>
       </div>
