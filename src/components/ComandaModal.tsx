@@ -1,4 +1,5 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Printer, Receipt, Users, Clock } from 'lucide-react';
@@ -84,6 +85,9 @@ export const ComandaModal = ({ isOpen, onClose, tableNumber, tableData }: Comand
             <Receipt className="h-5 w-5" />
             Comanda - Mesa {tableNumber}
           </DialogTitle>
+          <DialogDescription>
+            Visualize e imprima a comanda completa com todos os pedidos da mesa.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">

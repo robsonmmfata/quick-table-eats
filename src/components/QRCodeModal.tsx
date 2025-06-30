@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Download, Printer, Share2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -89,6 +89,9 @@ export const QRCodeModal = ({ isOpen, onClose, tableNumber }: QRCodeModalProps) 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>QR Code - Mesa {tableNumber}</DialogTitle>
+          <DialogDescription>
+            Use este QR Code para permitir que os clientes acessem o cardápio diretamente em seus dispositivos móveis.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="flex flex-col items-center space-y-4">
