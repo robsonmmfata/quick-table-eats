@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Menu from "./pages/Menu";
+import TableQRCode from "./pages/TableQRCode";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,7 +35,8 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
-            <Route path="/mesa/:tableId" element={<Menu />} />
+            <Route path="/mesa/:tableId" element={<TableQRCode />} />
+            <Route path="/cardapio/mesa/:tableId" element={<Menu />} />
             <Route path="/:restaurantSlug" element={<Menu />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

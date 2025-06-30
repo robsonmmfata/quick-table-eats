@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Download, Printer, Share2 } from 'lucide-react';
@@ -13,7 +12,7 @@ interface QRCodeModalProps {
 export const QRCodeModal = ({ isOpen, onClose, tableNumber }: QRCodeModalProps) => {
   if (!tableNumber) return null;
 
-  const qrCodeUrl = `${window.location.origin}/mesa/${tableNumber}`;
+  const qrCodeUrl = `${window.location.origin}/cardapio/mesa/${tableNumber}`;
 
   const handleDownload = () => {
     const svg = document.getElementById('qr-code-svg');
