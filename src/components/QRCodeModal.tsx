@@ -1,7 +1,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Download, Print, Share2 } from 'lucide-react';
+import { Download, Printer, Share2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface QRCodeModalProps {
@@ -116,7 +116,7 @@ export const QRCodeModal = ({ isOpen, onClose, tableNumber }: QRCodeModalProps) 
               Baixar
             </Button>
             <Button variant="outline" size="sm" onClick={handlePrint}>
-              <Print className="h-4 w-4 mr-2" />
+              <Printer className="h-4 w-4 mr-2" />
               Imprimir
             </Button>
             <Button variant="outline" size="sm" onClick={handleShare}>

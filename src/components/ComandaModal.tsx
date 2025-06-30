@@ -1,8 +1,7 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Print, Receipt, Users, Clock } from 'lucide-react';
+import { Printer, Receipt, Users, Clock } from 'lucide-react';
 
 interface Order {
   id: number;
@@ -134,7 +133,7 @@ export const ComandaModal = ({ isOpen, onClose, tableNumber, tableData }: Comand
           {/* Botões de Ação */}
           <div className="flex gap-2 pt-4">
             <Button onClick={handlePrint} className="flex-1">
-              <Print className="h-4 w-4 mr-2" />
+              <Printer className="h-4 w-4 mr-2" />
               Imprimir Comanda
             </Button>
           </div>
