@@ -1,21 +1,21 @@
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 
 interface Product {
-  id: number;
+  id?: number;
   name: string;
-  category: string;
+  description: string;
   price: number;
   image: string;
-  description: string;
+  category: string;
   active: boolean;
 }
 
@@ -26,37 +26,29 @@ interface ProductModalProps {
 }
 
 export const ProductModal = ({ isOpen, onClose, product }: ProductModalProps) => {
-  const [formData, setFormData] = useState({
+  const { toast } = useToast();
+  const [formData, setFormData] = useState<Product>({
     name: '',
-    category: '',
-    price: '',
-    image: '',
     description: '',
-    active: true
+    price: 0,
+    image: '',
+    category: 'Lanches',
+    active: true,
   });
 
-  const { toast } = useToast();
-
-  const categories = ['Lanches', 'Bebidas', 'Acompanhamentos', 'Pizzas', 'Sobremesas'];
+  const categories = ['Lanches', 'Acompanhamentos', 'Bebidas', 'Pizzas'];
 
   useEffect(() => {
     if (product) {
-      setFormData({
-        name: product.name,
-        category: product.category,
-        price: product.price.toString(),
-        image: product.image,
-        description: product.description,
-        active: product.active
-      });
+      setFormData(product);
     } else {
       setFormData({
         name: '',
-        category: '',
-        price: '',
-        image: '',
         description: '',
-        active: true
+        price: 0,
+        image: '',
+        category: 'Lanches',
+        active: true,
       });
     }
   }, [product]);
@@ -64,108 +56,108 @@ export const ProductModal = ({ isOpen, onClose, product }: ProductModalProps) =>
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.category || !formData.price) {
+    if (!formData.name.trim() || !formData.description.trim() || formData.price <= 0) {
       toast({
-        title: "Erro",
-        description: "Preencha todos os campos obrigatórios.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const price = parseFloat(formData.price);
-    if (isNaN(price) || price <= 0) {
-      toast({
-        title: "Erro",
-        description: "Digite um preço válido.",
+        title: "Erro de validação",
+        description: "Por favor, preencha todos os campos obrigatórios.",
         variant: "destructive"
       });
       return;
     }
 
     // Aqui você implementaria a lógica para salvar o produto
-    console.log('Salvando produto:', formData);
+    console.log('Produto salvo:', formData);
     
     toast({
-      title: "Sucesso",
-      description: product ? "Produto atualizado com sucesso!" : "Produto criado com sucesso!"
+      title: product ? "Produto atualizado" : "Produto criado",
+      description: `${formData.name} foi ${product ? 'atualizado' : 'criado'} com sucesso.`,
     });
 
     onClose();
   };
 
+  const handleInputChange = (field: keyof Product, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
             {product ? 'Editar Produto' : 'Novo Produto'}
           </DialogTitle>
+          <DialogDescription>
+            {product ? 'Edite as informações do produto' : 'Adicione um novo produto ao cardápio'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="name">Nome do Produto *</Label>
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="Ex: Hambúrguer Clássico"
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="category">Categoria *</Label>
-            <Select
-              value={formData.category}
-              onValueChange={(value) => setFormData({ ...formData, category: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="price">Preço (R$) *</Label>
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              min="0"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-              placeholder="0,00"
+          <div>
+            <Label htmlFor="description">Descrição *</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder="Descreva os ingredientes e características do produto"
+              rows={3}
               required
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="price">Preço (R$) *</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.price}
+                onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
+                placeholder="0.00"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="category">Categoria</Label>
+              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
             <Label htmlFor="image">URL da Imagem</Label>
             <Input
               id="image"
               value={formData.image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+              onChange={(e) => handleInputChange('image', e.target.value)}
               placeholder="https://exemplo.com/imagem.jpg"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Descreva o produto..."
-              rows={3}
             />
           </div>
 
@@ -173,19 +165,19 @@ export const ProductModal = ({ isOpen, onClose, product }: ProductModalProps) =>
             <Switch
               id="active"
               checked={formData.active}
-              onCheckedChange={(checked) => setFormData({ ...formData, active: checked })}
+              onCheckedChange={(checked) => handleInputChange('active', checked)}
             />
             <Label htmlFor="active">Produto ativo</Label>
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancelar
             </Button>
-            <Button type="submit">
+            <Button type="submit" className="flex-1">
               {product ? 'Atualizar' : 'Criar'} Produto
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

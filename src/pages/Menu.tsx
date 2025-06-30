@@ -11,11 +11,10 @@ import {
   Plus, 
   Minus, 
   Search, 
-  MapPin, 
-  Clock, 
-  Phone,
   Star,
-  Users
+  Users,
+  Clock,
+  Phone
 } from 'lucide-react';
 
 interface Product {
@@ -39,7 +38,6 @@ const Menu = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [cartOpen, setCartOpen] = useState(false);
 
-  // Mock data - em produção viria da API
   const restaurant = {
     name: 'Burger House',
     description: 'Os melhores hambúrgueres da cidade',
@@ -69,16 +67,16 @@ const Menu = () => {
     },
     {
       id: 3,
-      name: 'Batata Frita',
-      description: 'Porção de batata frita crocante temperada',
+      name: 'Batata Frita Grande',
+      description: 'Porção generosa de batata frita crocante temperada com ervas',
       price: 12.90,
       image: 'https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=300&h=200&fit=crop',
       category: 'Acompanhamentos'
     },
     {
       id: 4,
-      name: 'Coca-Cola',
-      description: 'Refrigerante Coca-Cola 350ml gelado',
+      name: 'Refrigerante Lata',
+      description: 'Coca-Cola, Pepsi ou Guaraná - 350ml gelado',
       price: 6.90,
       image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=300&h=200&fit=crop',
       category: 'Bebidas'
@@ -86,23 +84,31 @@ const Menu = () => {
     {
       id: 5,
       name: 'Pizza Margherita',
-      description: 'Molho de tomate, mussarela, manjericão fresco, azeite',
-      price: 38.90,
+      description: 'Molho de tomate artesanal, mussarela de búfala, manjericão fresco',
+      price: 42.90,
       image: 'https://images.unsplash.com/photo-1566843972142-a7fcb70de6a2?w=300&h=200&fit=crop',
       category: 'Pizzas'
+    },
+    {
+      id: 6,
+      name: 'Água Mineral',
+      description: 'Água mineral natural - 500ml',
+      price: 4.50,
+      image: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=300&h=200&fit=crop',
+      category: 'Bebidas'
     }
   ];
 
   const categories = ['Todos', 'Lanches', 'Acompanhamentos', 'Bebidas', 'Pizzas'];
 
   useEffect(() => {
-    // Simular carregamento dos produtos
     setProducts(mockProducts);
   }, []);
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'Todos' || product.category === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -260,7 +266,7 @@ const Menu = () => {
                             >
                               <Minus className="h-4 w-4" />
                             </Button>
-                            <span className="font-medium">{quantity}</span>
+                            <span className="font-medium min-w-[20px] text-center">{quantity}</span>
                             <Button
                               variant="outline"
                               size="sm"
@@ -286,6 +292,13 @@ const Menu = () => {
             );
           })}
         </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Nenhum produto encontrado</p>
+            <p className="text-sm text-gray-400">Tente ajustar sua busca ou filtros</p>
+          </div>
+        )}
 
         {/* Botão do Carrinho */}
         {cart.length > 0 && (

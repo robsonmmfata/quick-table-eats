@@ -14,18 +14,42 @@ export const TablesGrid = () => {
 
   const tables = [
     { id: 1, number: 1, status: "livre", customers: 0, total: 0, orders: [] },
-    { id: 2, number: 2, status: "ocupada", customers: 4, total: 89.50, orders: [
-      { id: 1, items: ["2x Hambúrguer", "1x Coca-Cola"], total: 57.80, status: "preparando" },
-      { id: 2, items: ["1x Porção Fritas"], total: 31.70, status: "pronto" }
-    ]},
-    { id: 3, number: 3, status: "ocupada", customers: 2, total: 45.90, orders: [
-      { id: 3, items: ["1x Pizza Margherita"], total: 45.90, status: "recebido" }
-    ]},
+    { 
+      id: 2, 
+      number: 2, 
+      status: "ocupada", 
+      customers: 4, 
+      total: 89.50, 
+      orders: [
+        { id: 1, items: ["2x Hambúrguer Clássico", "2x Coca-Cola"], total: 63.60, status: "preparando" },
+        { id: 2, items: ["1x Batata Frita Grande"], total: 12.90, status: "pronto" }
+      ]
+    },
+    { 
+      id: 3, 
+      number: 3, 
+      status: "ocupada", 
+      customers: 2, 
+      total: 42.90, 
+      orders: [
+        { id: 3, items: ["1x Pizza Margherita"], total: 42.90, status: "recebido" }
+      ]
+    },
     { id: 4, number: 4, status: "livre", customers: 0, total: 0, orders: [] },
-    { id: 5, number: 5, status: "ocupada", customers: 6, total: 127.40, orders: [
-      { id: 4, items: ["3x Cerveja", "2x Porção Frango"], total: 127.40, status: "entregue" }
-    ]},
+    { 
+      id: 5, 
+      number: 5, 
+      status: "ocupada", 
+      customers: 6, 
+      total: 127.40, 
+      orders: [
+        { id: 4, items: ["3x Refrigerante Lata", "2x Hambúrguer Bacon"], total: 78.50, status: "entregue" },
+        { id: 5, items: ["2x Batata Frita Grande", "1x Pizza Margherita"], total: 68.70, status: "preparando" }
+      ]
+    },
     { id: 6, number: 6, status: "livre", customers: 0, total: 0, orders: [] },
+    { id: 7, number: 7, status: "livre", customers: 0, total: 0, orders: [] },
+    { id: 8, number: 8, status: "livre", customers: 0, total: 0, orders: [] },
   ];
 
   const getStatusConfig = (status: string) => {
@@ -89,19 +113,26 @@ export const TablesGrid = () => {
                 {table.orders.length > 0 && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Pedidos ativos:</p>
-                    {table.orders.map((order) => (
+                    {table.orders.slice(0, 2).map((order) => (
                       <div key={order.id} className="text-xs bg-gray-50 p-2 rounded">
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center mb-1">
                           <span>Pedido #{order.id}</span>
                           <Badge variant="outline" className="text-xs">
                             {order.status}
                           </Badge>
                         </div>
-                        <div className="mt-1">
-                          {order.items.join(", ")}
+                        <div className="text-gray-600">
+                          {order.items.slice(0, 2).join(", ")}
+                          {order.items.length > 2 && " ..."}
+                        </div>
+                        <div className="font-medium text-green-600 mt-1">
+                          R$ {order.total.toFixed(2)}
                         </div>
                       </div>
                     ))}
+                    {table.orders.length > 2 && (
+                      <p className="text-xs text-gray-500">+{table.orders.length - 2} pedidos...</p>
+                    )}
                   </div>
                 )}
                 
