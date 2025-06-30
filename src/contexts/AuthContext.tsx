@@ -7,6 +7,7 @@ interface User {
   name: string;
   role: 'admin' | 'restaurant' | 'superadmin';
   restaurantId?: string;
+  token?: string;
 }
 
 interface AuthContextType {
@@ -46,7 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     if (token && userData) {
       try {
-        setUser(JSON.parse(userData));
+        const parsedUser = JSON.parse(userData);
+        setUser({ ...parsedUser, token });
       } catch (error) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
@@ -58,15 +60,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       // Simular login - aqui seria uma chamada real para API
+      const token = 'mock_jwt_token_' + Date.now();
       const mockUser: User = {
         id: '1',
         email,
         name: 'Admin Demo',
         role: email.includes('super') ? 'superadmin' : 'restaurant',
-        restaurantId: email.includes('super') ? undefined : '1'
+        restaurantId: email.includes('super') ? undefined : '1',
+        token
       };
-
-      const token = 'mock_jwt_token_' + Date.now();
       
       localStorage.setItem('auth_token', token);
       localStorage.setItem('user_data', JSON.stringify(mockUser));
@@ -82,15 +84,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (data: RegisterData): Promise<boolean> => {
     try {
       // Simular registro - aqui seria uma chamada real para API
+      const token = 'mock_jwt_token_' + Date.now();
       const newUser: User = {
         id: Date.now().toString(),
         email: data.email,
         name: data.name,
         role: 'restaurant',
-        restaurantId: Date.now().toString()
+        restaurantId: Date.now().toString(),
+        token
       };
-
-      const token = 'mock_jwt_token_' + Date.now();
       
       localStorage.setItem('auth_token', token);
       localStorage.setItem('user_data', JSON.stringify(newUser));
