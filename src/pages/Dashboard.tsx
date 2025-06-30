@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { RestaurantHeader } from '@/components/RestaurantHeader';
@@ -8,8 +7,28 @@ import { OrdersPanel } from '@/components/OrdersPanel';
 import { ProductsManager } from '@/components/ProductsManager';
 import { RestaurantSettings } from '@/components/RestaurantSettings';
 import { SuperAdminPanel } from '@/components/SuperAdminPanel';
+import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
+import { NotificationCenter } from '@/components/NotificationCenter';
+import { StaffManager } from '@/components/StaffManager';
+import { LoyaltyProgram } from '@/components/LoyaltyProgram';
+import { InventoryManager } from '@/components/InventoryManager';
+import { PlansModal } from '@/components/PlansModal';
 import { Button } from '@/components/ui/button';
-import { QrCode, ShoppingCart, ChefHat, Settings, TrendingUp, Crown, LogOut } from 'lucide-react';
+import { 
+  QrCode, 
+  ShoppingCart, 
+  ChefHat, 
+  Settings, 
+  TrendingUp, 
+  Crown, 
+  LogOut,
+  BarChart3,
+  Bell,
+  Users,
+  Gift,
+  Package,
+  CreditCard
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, TrendingUp as TrendingUpIcon } from 'lucide-react';
@@ -17,6 +36,7 @@ import { Clock, TrendingUp as TrendingUpIcon } from 'lucide-react';
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
 
   const renderContent = () => {
     if (user?.role === 'superadmin') {
@@ -27,7 +47,19 @@ const Dashboard = () => {
       case 'dashboard':
         return (
           <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Dashboard</h2>
+                <p className="text-gray-600">Visão geral do seu restaurante</p>
+              </div>
+              <Button onClick={() => setIsPlansModalOpen(true)} className="gap-2">
+                <CreditCard className="h-4 w-4" />
+                Gerenciar Plano
+              </Button>
+            </div>
+            
             <StatsCards />
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -77,6 +109,16 @@ const Dashboard = () => {
         return <OrdersPanel />;
       case 'produtos':
         return <ProductsManager />;
+      case 'analytics':
+        return <AnalyticsDashboard />;
+      case 'notificacoes':
+        return <NotificationCenter />;
+      case 'funcionarios':
+        return <StaffManager />;
+      case 'fidelidade':
+        return <LoyaltyProgram />;
+      case 'estoque':
+        return <InventoryManager />;
       case 'configuracoes':
         return <RestaurantSettings />;
       default:
@@ -96,6 +138,11 @@ const Dashboard = () => {
       { id: 'mesas', label: 'Mesas', icon: QrCode },
       { id: 'pedidos', label: 'Pedidos', icon: ShoppingCart },
       { id: 'produtos', label: 'Produtos', icon: ChefHat },
+      { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+      { id: 'notificacoes', label: 'Notificações', icon: Bell },
+      { id: 'funcionarios', label: 'Funcionários', icon: Users },
+      { id: 'fidelidade', label: 'Fidelidade', icon: Gift },
+      { id: 'estoque', label: 'Estoque', icon: Package },
       { id: 'configuracoes', label: 'Configurações', icon: Settings },
     ];
   };
@@ -134,6 +181,12 @@ const Dashboard = () => {
 
         {renderContent()}
       </div>
+
+      {/* Plans Modal */}
+      <PlansModal 
+        isOpen={isPlansModalOpen} 
+        onClose={() => setIsPlansModalOpen(false)} 
+      />
     </div>
   );
 };
