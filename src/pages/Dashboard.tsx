@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { RestaurantHeader } from '@/components/RestaurantHeader';
@@ -8,13 +9,13 @@ import { ProductsManager } from '@/components/ProductsManager';
 import { RestaurantSettings } from '@/components/RestaurantSettings';
 import { SuperAdminPanel } from '@/components/SuperAdminPanel';
 import { Button } from '@/components/ui/button';
-import { QrCode, ShoppingCart, ChefHat, Settings, TrendingUp, Crown } from 'lucide-react';
+import { QrCode, ShoppingCart, ChefHat, Settings, TrendingUp, Crown, LogOut } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, TrendingUp as TrendingUpIcon } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const renderContent = () => {
@@ -105,21 +106,31 @@ const Dashboard = () => {
       
       <div className="container mx-auto px-4 py-6">
         {/* Navigation Tabs */}
-        {user?.role !== 'superadmin' && (
-          <div className="flex flex-wrap gap-2 mb-6 bg-white p-2 rounded-lg shadow-sm">
-            {getTabsForUser().map(({ id, label, icon: Icon }) => (
-              <Button
-                key={id}
-                variant={activeTab === id ? 'default' : 'ghost'}
-                onClick={() => setActiveTab(id)}
-                className="flex items-center gap-2"
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </Button>
-            ))}
+        <div className="flex flex-wrap gap-2 mb-6 bg-white p-2 rounded-lg shadow-sm">
+          {getTabsForUser().map(({ id, label, icon: Icon }) => (
+            <Button
+              key={id}
+              variant={activeTab === id ? 'default' : 'ghost'}
+              onClick={() => setActiveTab(id)}
+              className="flex items-center gap-2"
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </Button>
+          ))}
+          
+          {/* Logout Button */}
+          <div className="ml-auto">
+            <Button
+              variant="outline"
+              onClick={logout}
+              className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <LogOut className="h-4 w-4" />
+              Sair
+            </Button>
           </div>
-        )}
+        </div>
 
         {renderContent()}
       </div>
